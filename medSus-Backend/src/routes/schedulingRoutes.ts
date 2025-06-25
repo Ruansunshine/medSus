@@ -1,17 +1,13 @@
 import { Router } from 'express';
-import validation from '../middlewares/validateSchedulingData';
 import controller from '../controllers/schedulingController';
+import validation from '../middlewares/validateSchedulingData';
+
 const router = Router();
 
-
-router.post('/criar/:userId', validation.validarCriarAgendamento, controller.criarAgendamento);
-
-router.get('/buscar/:id', validation.validarBuscarOuDeletarPorId, controller.buscarAgendamento);
-
-
-router.put('/atualizar/:id', validation.validarAtualizarAgendamento, controller.atualizarAgendamento);
-
-
-router.delete('/deletar/:id', validation.validarBuscarOuDeletarPorId, controller.deletarAgendamento);
+//minhas rotas
+router.post('/cadastro/:id', validation.validarUserId, validation.validarCadastroAgendamento, controller.criarAgendamento);
+router.get('/buscar/:id', validation.validarId, controller.buscarAgendamento);
+router.put('/atualizar/:id', validation.validarId, validation.validarCamposAtualizacao, controller.atualizarAgendamento);
+router.delete('/deletar/:id', validation.validarId, controller.deletarAgendamento);
 
 export default router;

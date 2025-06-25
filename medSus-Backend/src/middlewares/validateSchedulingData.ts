@@ -1,53 +1,85 @@
 import { Request, Response, NextFunction } from 'express';
 
-function validarCriarAgendamento(req: Request, res: Response, next: NextFunction): void {
-  const { date_scheduling, type, sus, latitude, longitude } = req.body;
-  const userId = req.params.userId;  // Acessando diretamente o userId da URL
+function validarCadastroAgendamento(req: Request, res: Response, next: NextFunction): void {
+  try {
+    const idUsers = req.params.id;
+    if (!idUsers || isNaN(Number(idUsers))) {
+      res.status(400).json({ error: 'ID do usuário é obrigatório.' });
+      return;
+    }
+    const { date_scheduling, type, local, medico, observation } = req.body;
+        
+    console.log('Dados recebidos no cadastro de agendamento:', {
+      date_scheduling,
+      type,
+      local,
+      medico,
+      observation
+    });
 
-  if (!date_scheduling || !type || !sus || latitude === undefined || longitude === undefined || !userId) {
-    res.status(400).json({ error: 'Todos os campos são obrigatórios: date_scheduling, type, sus, latitude, longitude, userId.' });
-    return;
+    if (!date_scheduling || !type || !local || !medico || !observation) {
+      res.status(400).json({ error: 'Todos os campos são obrigatórios.' });
+      return;
+    }
+        
+    next();
+  } catch (error) {
+    console.error('Erro no middleware de validação de cadastro de agendamento:', error);
+    res.status(500).json({ error: 'Erro interno na validação dos dados do agendamento.' });
   }
-
-  // Validação básica dos tipos
-  if (isNaN(Date.parse(date_scheduling))) {
-    res.status(400).json({ error: 'O campo "date_scheduling" deve ser uma data válida (YYYY-MM-DD).' });
-    return;
-  }
-
-  if (typeof type !== 'string' || typeof sus !== 'string' || typeof latitude !== 'number' || typeof longitude !== 'number') {
-    res.status(400).json({ error: 'Campos com tipos inválidos.' });
-    return;
-  }
-
-  next();
 }
 
-
-function validarAtualizarAgendamento(req: Request, res: Response, next: NextFunction): void {
-  const { date_scheduling, type, latitude, longitude } = req.body;
-
-  if (!date_scheduling && !type && latitude === undefined && longitude === undefined) {
-    res.status(400).json({ error: 'Forneça pelo menos um campo para atualizar: date_scheduling, type, latitude ou longitude.' });
-    return;
+function validarId(req: Request, res: Response, next: NextFunction): void {
+  try {
+    const { id } = req.params;
+        
+    if (!id || isNaN(Number(id))) {
+      res.status(400).json({ error: 'ID válido é obrigatório.' });
+      return;
+    }
+        
+    next();
+  } catch (error) {
+    console.error('Erro no middleware de validação de ID:', error);
+    res.status(500).json({ error: 'Erro interno na validação do ID.' });
   }
-
-  next();
 }
 
-function validarBuscarOuDeletarPorId(req: Request, res: Response, next: NextFunction): void {
-  const id = parseInt(req.params.id);
-
-  if (isNaN(id) || id <= 0) {
-    res.status(400).json({ error: 'O ID fornecido é inválido.' });
-    return;
+function validarUserId(req: Request, res: Response, next: NextFunction): void {
+  try {
+    const idUsers  = req.params.id;
+        
+    if (!idUsers|| isNaN(Number(idUsers))) {
+      res.status(400).json({ error: 'ID do usuário válido é obrigatório.' });
+      return;
+    }
+        
+    next();
+  } catch (error) {
+    console.error('Erro no middleware de validação de ID do usuário:', error);
+    res.status(500).json({ error: 'Erro interno na validação do ID do usuário.' });
   }
+}
 
-  next();
+function validarCamposAtualizacao(req: Request, res: Response, next: NextFunction): void {
+  try {
+    const { date_scheduling, type, local, medico, observation } = req.body;
+
+    if (!(date_scheduling || type || local || medico || observation)) {
+      res.status(400).json({ error: 'Pelo menos um campo é obrigatório para atualização.' });
+      return;
+    }
+        
+    next();
+  } catch (error) {
+    console.error('Erro no middleware de validação de atualização:', error);
+    res.status(500).json({ error: 'Erro interno na validação dos dados de atualização.' });
+  }
 }
 
 export default {
-  validarCriarAgendamento,
-  validarAtualizarAgendamento,
-  validarBuscarOuDeletarPorId
+  validarCadastroAgendamento,
+  validarId,
+  validarUserId,
+  validarCamposAtualizacao
 };
