@@ -12,7 +12,7 @@ app.use(cors({
 
 app.use(express.json());
 
-app.use('/api/router', router);
+app.use('/api/users', router);
 app.use('/api/scheduling', schedulingRoutes);
 
 app.listen(PORT, () => {
